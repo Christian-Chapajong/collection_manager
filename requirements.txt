@@ -1,0 +1,8 @@
+flask
+flask_sqlalchemy
+flask_migrate
+flasgger
+config
+pandas
+marshmallow 
+marshmallow-sqlalchemy
