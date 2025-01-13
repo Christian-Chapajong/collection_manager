@@ -1,8 +1,9 @@
 flask
 flask_sqlalchemy
 flask_migrate
-flasgger
+flask-admin
 config
 pandas
 marshmallow 
 marshmallow-sqlalchemy
+requests
