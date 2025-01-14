@@ -1,0 +1,49 @@
+<!-- templates/fighters_new.html -->
+{% extends "base.html" %}
+
+{% block title %}Create New Fighter{% endblock %}
+
+{% block content %}
+    <!-- Display flash messages, if any -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-info">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+
+    <h1>Compare Fighters</h1>
+        
+    <div class="row">
+        <div class="col-6">
+            <h3>{{ fighter_1.name }}</h3>
+            <p>Nickname: {{ fighter_1.nickname }}</p>
+        </div>
+        <div class="col-6">
+            <h3>{{ fighter_2.name }}</h3>
+            <p>Nickname: {{ fighter_2.nickname }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6 text-center">
+            <h3>W/D/L Comparison</h3>
+            <img src="data:image/png;base64,{{ wdl_chart_data }}" alt="W/D/L Comparison">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-6 text-center">
+            <h3>Height, Weight, and Reach Comparison</h3>
+            <img src="data:image/png;base64,{{ hw_reach_chart_data }}" alt="Height/Weight/Reach Comparison">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-6 text-center">
+            <h3>Stats Comparison</h3>
+            <img src="data:image/png;base64,{{ remaining_stats_chart_data }}" alt="Stats Comparison">
+        </div>
+    </div>
+
+    
+{% endblock %}
+

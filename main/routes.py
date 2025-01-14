@@ -8,6 +8,11 @@ from collections import OrderedDict
 from sqlalchemy import or_
 from datetime import datetime, date
 from sqlalchemy.orm import aliased
+import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
+import numpy as np
+from math import pi
 
 # ===========================
 # ======== Fighters =========
@@ -282,6 +287,85 @@ def delete_match(match_id):
 # ===========================
 # ======= Analytics =========
 # ===========================
-@main.route("/analytics")
+@main.route("/fighter_comparison", methods=["GET"])
+def fighter_comparison():
+    fighters = Fighter.query.all()
+    return render_template("fighter_comparison.html", fighters=fighters)
+
+@main.route('/analytics')
 def analytics():
-    ...
+    # Get the selected fighter IDs from the query string
+    fighter_1_id = request.args.get('fighter_1_id', type=int)
+    fighter_2_id = request.args.get('fighter_2_id', type=int)
+    
+    # Retrieve fighter data based on selected fighter IDs
+    fighter_1 = Fighter.query.get(fighter_1_id)
+    fighter_2 = Fighter.query.get(fighter_2_id)
+
+    if not fighter_1 or not fighter_2:
+        flash("Invalid fighter(s) selected", "error")
+        return redirect(url_for('main.index'))
+    
+    # Group 1: Wins, Losses, Draws
+    wdl_stats = ["wins", "losses", "draws"]
+    fighter_1_wdl = [getattr(fighter_1, stat) for stat in wdl_stats]
+    fighter_2_wdl = [getattr(fighter_2, stat) for stat in wdl_stats]
+    
+    # Group 2: Height, Weight, Reach
+    hw_reach_stats = ["height_cm", "weight_kg", "reach_cm"]
+    fighter_1_hw_reach = [getattr(fighter_1, stat) for stat in hw_reach_stats]
+    fighter_2_hw_reach = [getattr(fighter_2, stat) for stat in hw_reach_stats]
+    
+    # Group 3: Remaining Stats
+    remaining_stats = [
+        "significant_strikes_landed_per_minute", "significant_striking_accuracy",
+        "significant_strikes_absorbed_per_minute", "significant_strike_defence",
+        "average_takedowns_landed_per_15_minutes", "takedown_accuracy", 
+        "takedown_defense", "average_submissions_attempted_per_15_minutes"
+    ]
+    fighter_1_remaining = [getattr(fighter_1, stat) for stat in remaining_stats]
+    fighter_2_remaining = [getattr(fighter_2, stat) for stat in remaining_stats]
+    
+    # Labels
+    wdl_labels = ["Wins", "Losses", "Draws"]
+    hw_reach_labels = ["Height (cm)", "Weight (kg)", "Reach (cm)"]
+    remaining_labels = [
+        "Strikes per Minute", "Striking Accuracy", "Strikes Absorbed per Minute",
+        "Strike Defence", "Takedowns per 15 Min", "Takedown Accuracy", "Takedown Defense",
+        "Submissions per 15 Min"
+    ]
+    
+    # Function to create bar chart and return base64 encoded image
+    def create_bar_chart(labels, fighter_1_stats, fighter_2_stats, title):
+        fig, ax = plt.subplots(figsize=(10, 6))
+        bar_width = 0.35
+        index = np.arange(len(labels))
+        
+        bars1 = ax.bar(index, fighter_1_stats, bar_width, label=fighter_1.name)
+        bars2 = ax.bar(index + bar_width, fighter_2_stats, bar_width, label=fighter_2.name)
+        
+        ax.set_xlabel('Statistics')
+        ax.set_ylabel('Values')
+        ax.set_title(title)
+        ax.set_xticks(index + bar_width / 2)
+        ax.set_xticklabels(labels, rotation=45, ha='right')
+        ax.legend()
+
+        # Save the plot as a PNG image
+        img = BytesIO()
+        plt.tight_layout()
+        plt.savefig(img, format='png')
+        img.seek(0)
+        return base64.b64encode(img.getvalue()).decode('utf8')
+
+    # Generate charts for each group
+    wdl_chart_data = create_bar_chart(wdl_labels, fighter_1_wdl, fighter_2_wdl, 'W/D/L Comparison')
+    hw_reach_chart_data = create_bar_chart(hw_reach_labels, fighter_1_hw_reach, fighter_2_hw_reach, 'Height/Weight/Reach Comparison')
+    remaining_stats_chart_data = create_bar_chart(remaining_labels, fighter_1_remaining, fighter_2_remaining, 'Remaining Stats Comparison')
+
+    return render_template('analytics.html', 
+                           fighter_1=fighter_1, 
+                           fighter_2=fighter_2, 
+                           wdl_chart_data=wdl_chart_data,
+                           hw_reach_chart_data=hw_reach_chart_data,
+                           remaining_stats_chart_data=remaining_stats_chart_data)

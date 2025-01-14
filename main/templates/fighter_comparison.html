@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Compare Fighters{% endblock %}
+
+{% block content %}
+    <!-- Display flash messages, if any -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info">{{ messages[0] }}</div>
+        {% endif %}
+    {% endwith %}
+
+    <h1>Compare Fighters</h1>
+
+    <div class="row">
+        <form id="comparison-form">
+            <div class="mb-3">
+                <label class="form-label">Fighter 1:</label>
+                <select name="fighter_1_id" id="fighter_1_id" class="form-select" required>
+                    {% for f in fighters %}
+                        <option value="{{ f.id }}">{{ f.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Fighter 2:</label>
+                <select name="fighter_2_id" id="fighter_2_id" class="form-select" required>
+                    {% for f in fighters %}
+                        <option value="{{ f.id }}">{{ f.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <a href="#" id="compare-link" class="btn btn-primary">Compare Fighters</a>
+        </form>
+    </div>
+
+    <script>
+        // Get references to the form and the link
+        const form = document.getElementById('comparison-form');
+        const compareLink = document.getElementById('compare-link');
+        
+        // Update the compare link when form changes
+        form.addEventListener('change', function() {
+            const fighter1Id = document.getElementById('fighter_1_id').value;
+            const fighter2Id = document.getElementById('fighter_2_id').value;
+            
+            if (fighter1Id && fighter2Id) {
+                // Update the href attribute of the link with selected fighter ids
+                compareLink.href = `/analytics?fighter_1_id=${fighter1Id}&fighter_2_id=${fighter2Id}`;
+            } else {
+                // Ensure the link is not clickable if the form is incomplete
+                compareLink.href = '#';
+            }
+        });
+    </script>
+
+{% endblock %}
