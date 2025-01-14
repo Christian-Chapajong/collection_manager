@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Create New Fighter</title>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  />
+</head>
+<body class="bg-light">
+  <div class="container mt-5">
+    <!-- Display flash messages, if any -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-info">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+
+    <h1>Add a fighter</h2>
+    <!-- The form: POST to /fighters -->
+    <form method="POST" action="{{ url_for('main.fighters') }}">
+        <div class="mb-3">
+        <label for="name" class="form-label">Fighter Name</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="Fighter Name">
+        </div>
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Nickname</label>
+            <input type="text" class="form-control" id="nickname" name="nickname" placeholder="Nickname">
+            </div>
+        
+        <div class="mb-3">
+        <label for="weight_class" class="form-label">Weight Class</label>
+        <select class="form-control" id="weight_class" name="weight_class">
+            <option value="Flyweight">Flyweight</option>
+            <option value="Bantamweight">Bantamweight</option>
+            <option value="Featherweight">Featherweight</option>
+            <option value="Lightweight">Lightweight</option>
+            <option value="Welterweight">Welterweight</option>
+            <option value="Middleweight">Middleweight</option>
+            <option value="Light Heavyweight">Light Heavyweight</option>
+            <option value="Heavyweight">Heavyweight</option>
+            <option value="Super Heavyweight">Super Heavyweight</option>
+        </select>
+        </div>
+
+        <div class="mb-3">
+        <label for="wins" class="form-label">Wins</label>
+        <input type="number" class="form-control" id="wins" name="wins" placeholder="0">
+        </div>
+
+        <div class="mb-3">
+        <label for="draws" class="form-label">Draws</label>
+        <input type="number" class="form-control" id="draws" name="draws" placeholder="0">
+        </div>
+
+        <div class="mb-3">
+        <label for="losses" class="form-label">Losses</label>
+        <input type="number" class="form-control" id="losses" name="losses" placeholder="0">
+        </div>
+
+        <div class="mb-3">
+        <label for="stance" class="form-label">Stance</label>
+        <select class="form-control" id="stance" name="stance">
+            <option value="Orthodox">Orthodox</option>
+            <option value="Southpaw">Southpaw</option>
+            <option value="Switch">Switch</option>
+            <option value="Open Stance">Open Stance</option>
+        </select>
+        </div>
+
+        <div class="mb-3">
+        <label for="height_cm" class="form-label">Height (cm)</label>
+        <input type="number" class="form-control" id="height_cm" name="height_cm" placeholder="e.g. 180">
+        </div>
+
+        <div class="mb-3">
+        <label for="reach_cm" class="form-label">Reach (cm)</label>
+        <input type="number" class="form-control" id="reach_cm" name="reach_cm" placeholder="e.g. 190">
+        </div>
+
+        <div class="mb-3">
+        <label for="sex" class="form-label">Sex</label>
+        <select class="form-control" id="sex" name="sex">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add fighter</button>
+    </form>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+  ></script>
+</body>
+</html>

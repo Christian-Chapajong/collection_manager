@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>Edit Fighter</title>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+  />
+</head>
+<body class="bg-light">
+  <div class="container mt-5">
+    <h1>Edit Fighter (ID: {{ fighter.id }})</h1>
+    
+    {% with msgs = get_flashed_messages() %}
+      {% if msgs %}
+        <div class="alert alert-info">{{ msgs[0] }}</div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('main.edit_fighter', fighter_id=fighter.id) }}">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input 
+            type="text" 
+            class="form-control" 
+            id="name" 
+            name="name" 
+            value="{{ fighter.name }}" 
+            required
+            />
+        </div>
+        
+        <div class="mb-3">
+            <label for="nickname" class="form-label">Nickname</label>
+            <input 
+            type="text" 
+            class="form-control" 
+            id="nickname" 
+            name="nickname" 
+            value="{{ fighter.nickname }}"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="weight_class" class="form-label">Weight Class</label>
+            <input 
+            type="text" 
+            class="form-control" 
+            id="weight_class" 
+            name="weight_class"
+            value="{{ fighter.weight_class }}"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="wins" class="form-label">Wins</label>
+            <input 
+            type="number"
+            class="form-control"
+            id="wins"
+            name="wins"
+            value="{{ fighter.wins }}"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="draws" class="form-label">Draws</label>
+            <input 
+            type="number"
+            class="form-control"
+            id="draws"
+            name="draws"
+            value="{{ fighter.draws }}"
+            />
+
+        </div>
+
+        <div class="mb-3">
+            <label for="losses" class="form-label">Losses</label>
+            <input 
+            type="number"
+            class="form-control"
+            id="losses"
+            name="losses"
+            value="{{ fighter.losses }}"
+            />
+
+        </div>
+
+        <div class="mb-3">
+            <label for="sex" class="form-label">Sex</label>
+            <input
+            type="text"
+            class="form-control"
+            id="sex"
+            name="sex"
+            value="{{ fighter.sex }}"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="stance" class="form-label">Stance</label>
+            <input 
+            type="text"
+            class="form-control"
+            id="stance"
+            name="stance"
+            value="{{ fighter.stance }}"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="height_cm" class="form-label">Height (cm)</label>
+            <input 
+            type="number"
+            class="form-control"
+            id="height_cm"
+            name="height_cm"
+            value="{{ fighter.height_cm }}"
+            />
+        </div>  
+
+        <div class="mb-3">
+            <label for="reach_cm" class="form-label">Reach (cm)</label>
+            <input 
+            type="number"
+            class="form-control"
+            id="reach_cm"
+            name="reach_cm"
+            value="{{ fighter.reach_cm }}"
+            />
+
+        </div>
+
+        <div class="mb-3">
+            <label for="significant_strikes_landed_per_minute" class="form-label">Significant Strikes Landed Per Minute</label>
+            <input 
+            type="number"
+            step="0.01"
+            class="form-control"
+            id="significant_strikes_landed_per_minute"
+            name="significant_strikes_landed_per_minute"
+            value="{{ fighter.significant_strikes_landed_per_minute }}"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="significant_striking_accuracy" class="form-label">Significant Striking Accuracy (%)</label>
+            <input 
+            type="number"
+            step="0.01"
+            class="form-control"
+            id="significant_striking_accuracy"
+            name="significant_striking_accuracy"
+            value="{{ fighter.significant_striking_accuracy }}"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="significant_strikes_absorbed_per_minute" class="form-label">Significant Strikes Absorbed Per Minute</label>
+            <input 
+            type="number"
+            step="0.01"
+            class="form-control"
+            id="significant_strikes_absorbed_per_minute"
+            name="significant_strikes_absorbed_per_minute"
+            value="{{ fighter.significant_strikes_absorbed_per_minute }}"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="significant_strike_defence" class="form-label">Significant Strike Defence (%)</label>
+            <input 
+            type="number"
+            step="0.01"
+            class="form-control"
+            id="significant_strike_defence"
+            name="significant_strike_defence"
+            value="{{ fighter.significant_strike_defence }}"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="average_takedowns_landed_per_15_minutes" class="form-label">Average Takedowns Landed Per 15 Minutes</label>
+            <input 
+            type="number"
+            step="0.01"
+            class="form-control"
+            id="average_takedowns_landed_per_15_minutes"
+            name="average_takedowns_landed_per_15_minutes"
+            value="{{ fighter.average_takedowns_landed_per_15_minutes }}"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="takedown_accuracy" class="form-label">Takedown Accuracy (%)</label>
+            <input 
+            type="number"
+            step="0.01"
+            class="form-control"
+            id="takedown_accuracy"
+            name="takedown_accuracy"
+            value="{{ fighter.takedown_accuracy }}"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="takedown_defense" class="form-label">Takedown Defense (%)</label>
+            <input 
+            type="number"
+            step="0.01"
+            class="form-control"
+            id="takedown_defense"
+            name="takedown_defense"
+            value="{{ fighter.takedown_defense }}"
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="average_submissions_attempted_per_15_minutes" class="form-label">Average Submissions Attempted Per 15 Minutes</label>
+            <input 
+            type="number"
+            step="0.01"
+            class="form-control"
+            id="average_submissions_attempted_per_15_minutes"
+            name="average_submissions_attempted_per_15_minutes"
+            value="{{ fighter.average_submissions_attempted_per_15_minutes }}"
+            />
+        </div>
+
+
+
+      <button type="submit" class="btn btn-primary">Update Fighter</button>
+    </form>
+  </div>
+</body>
+</html>
