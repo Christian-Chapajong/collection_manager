@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Create New Match</title>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  />
+</head>
+<body class="bg-light">
+  <div class="container mt-5">
+    <!-- Display flash messages, if any -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-info">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+
+    <h1>Add a fighter</h2>
+    <form method="POST" action="{{ url_for('main.new_match') }}">
+        <div>
+        <label>Fighter 1:</label>
+        <select name="fighter_1_id">
+            {% for f in fighters %}
+            <option value="{{ f.id }}">{{ f.name }}</option>
+            {% endfor %}
+        </select>
+        </div>
+        
+        <div>
+        <label>Fighter 2:</label>
+        <select name="fighter_2_id">
+            {% for f in fighters %}
+            <option value="{{ f.id }}">{{ f.name }}</option>
+            {% endfor %}
+        </select>
+        </div>
+    
+        <div>
+        <label>Date:</label>
+        <input type="date" name="date"/>
+        </div>
+    
+        <div>
+        <label>Weight Class:</label>
+        <select name="weight_class_name">
+            {% for wc in weight_classes %}
+            <option value="{{ wc.name }}">{{ wc.name }}</option>
+            {% endfor %}
+        </select>
+        </div>
+    
+        <div>
+        <label>Method:</label>
+        <select name="method">
+            <option value="KO">KO</option>
+            <option value="Submission">Submission</option>
+            <option value="Decision">Decision</option>
+            <option value="TKO">TKO</option>
+            
+        </select>
+        </div>
+    
+        <div>
+        <label>Round:</label>
+        <input type="number" name="round" value="1" min="1"/>
+        </div>
+    
+        <div>
+        <label>Time:</label>
+        <input type="text" name="time" placeholder="e.g. 4:32"/>
+        </div>
+    
+        <div>
+        <label>Winner (Optional):</label>
+        <select name="winner_id">
+            <option value="">No Winner / Draw</option>
+            {% for f in fighters %}
+            <option value="{{ f.id }}">{{ f.name }}</option>
+            {% endfor %}
+        </select>
+        </div>
+    
+        <div>
+        <label>Location:</label>
+        <input type="text" name="location"/>
+        </div>
+    
+        <div>
+        <label>Event Name:</label>
+        <input type="text" name="event_name"/>
+        </div>
+
+        <div>
+        <label>Fighter 1 Knockdowns:</label>
+        <input type="number" name="fighter_1_kd" value="0" min="0"/>
+        </div>
+
+        <div>
+        <label>Fighter 2 Knockdowns:</label>
+        <input type="number" name="fighter_2_kd" value="0" min="0"/>
+        </div>
+
+        <div>
+        <label>Fighter 1 Significant Strikes:</label>
+        <input type="number" name="fighter_1_str" value="0" min="0"/>
+        </div>
+
+        <div>
+        <label>Fighter 2 Significant Strikes:</label>
+        <input type="number" name="fighter_2_str" value="0" min="0"/>
+        </div>
+
+        <div>
+        <label>Fighter 1 Takedowns:</label>
+        <input type="number" name="fighter_1_td" value="0" min="0"/>
+        </div>
+
+        <div>
+        <label>Fighter 2 Takedowns:</label>
+        <input type="number" name="fighter_2_td" value="0" min="0"/>
+        </div>
+
+        <div>
+        <label>Fighter 1 Submissions:</label>
+        <input type="number" name="fighter_1_sub" value="0" min="0"/>
+        </div>
+
+        <div>
+        <label>Fighter 2 Submissions:</label>
+        <input type="number" name="fighter_2_sub" value="0" min="0"/>
+        </div>
+    
+        <button type="submit">Create Match</button>
+    </form>
+    </div>
+</body>
+</html>

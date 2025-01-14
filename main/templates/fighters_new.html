@@ -19,7 +19,7 @@
 
     <h1>Add a fighter</h2>
     <!-- The form: POST to /fighters -->
-    <form method="POST" action="{{ url_for('main.fighters') }}">
+    <form method="POST" action="{{ url_for('main.new_fighter') }}">
         <div class="mb-3">
         <label for="name" class="form-label">Fighter Name</label>
         <input type="text" class="form-control" id="name" name="name" placeholder="Fighter Name">

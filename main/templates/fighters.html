@@ -13,8 +13,10 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">UFC Collection Manager</a>
-      <a class="navbar-link" href="{{ url_for('main.fighters') }}">Fighters</a>
-      <a class=""
+      <a class="navbar-link active" href="{{ url_for('main.fighters') }}">Fighters</a>
+      <a class="navbar-link" href="{{ url_for('main.matches') }}">Matches</a>
+      <a class="navbar-link" href="{{ url_for('main.analytics') }}">Analytics</a>
+
     </div>
   </nav>
 
@@ -145,7 +147,6 @@
         {% endif %}
       </ul>
     </nav>
-    <hr>
     
   </div>
 

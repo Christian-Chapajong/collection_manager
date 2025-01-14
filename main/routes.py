@@ -5,6 +5,7 @@ from db_instance import db
 import utilities
 from models import Fighter, FighterSchema, WeightClass, Match
 from collections import OrderedDict
+from sqlalchemy import or_
 
 @main.route("/fighters", methods=["GET"])
 def fighters():
@@ -105,7 +106,7 @@ def edit_fighter(fighter_id):
 
         db.session.commit()
         flash(f"Fighter {fighter.name} updated successfully!")
-        return redirect(url_for("main.fighters"))  # or some detail page
+        return redirect(url_for("main.fighters"))
 
     # GET: Render an edit form pre-filled with fighter data
     return render_template("fighters_edit.html", fighter=fighter)
@@ -118,3 +119,157 @@ def delete_fighter(fighter_id):
 
     flash(f"Fighter (ID: {fighter_id}) deleted!")
     return redirect(url_for("main.fighters"))
+
+@main.route("/matches", methods=["GET"])
+def matches():
+    # 1. Grab query params for filtering or searching
+    fighter_name = request.args.get("fighter_name", "", type=str)
+    weight_class = request.args.get("weight_class", "", type=str)
+    date_str = request.args.get("date", "", type=str)
+    
+    page = request.args.get("page", 1, type=int)
+    per_page = 25
+
+    # 2. Base query
+    query = Match.query
+
+    # 3. Filter by fighter_name if provided
+    # Match has fighter_1, fighter_2 relationships
+    if fighter_name:
+        # Join or filter by either fighter_1 or fighter_2 name
+        query = query.join(Match.fighter_1).join(Match.fighter_2)
+        query = query.filter(
+            or_(
+                Fighter.name.ilike(f"%{fighter_name}%"),
+                Fighter.name.ilike(f"%{fighter_name}%")
+            )
+        )
+
+    # 4. Filter by weight_class if provided
+    if weight_class:
+        query = query.filter(Match.weight_class_name.ilike(f"%{weight_class}%"))
+
+    # 5. Filter by date
+    if date_str:
+        # parse date from string, for example "YYYY-MM-DD"
+        try:
+            from datetime import datetime
+            match_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            query = query.filter(Match.date == match_date)
+        except ValueError:
+            flash("Invalid date format; use YYYY-MM-DD")
+
+    # 6. Paginate
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+
+    # 7. Render a template "matches.html" with the pagination object
+    return render_template("matches.html", pagination=pagination,
+                           fighter_name=fighter_name, weight_class=weight_class,
+                           date_str=date_str)
+
+@main.route("/matches/new", methods=["GET", "POST"])
+def new_match():
+    if request.method == "POST":
+        # 1. Read form data
+        fighter_1_id = request.form.get("fighter_1_id", type=int)
+        fighter_2_id = request.form.get("fighter_2_id", type=int)
+        match_date_str = request.form.get("date")
+        location = request.form.get("location")
+        weight_class_name = request.form.get("weight_class_name")
+        method = request.form.get("method", "Decision")
+        round_ = request.form.get("round", 1, type=int)
+        time_ = request.form.get("time", "")
+        event_name = request.form.get("event_name", "")
+        winner_id = request.form.get("winner_id", type=int)  # or None if no winner
+
+        # parse date
+        from datetime import datetime, date
+        match_date = None
+        if match_date_str:
+            try:
+                match_date = datetime.strptime(match_date_str, "%Y-%m-%d").date()
+            except ValueError:
+                flash("Invalid date format. Use YYYY-MM-DD.")
+                return redirect(url_for("main.new_match"))
+
+        # 2. Create the Match object
+        new_match = Match(
+            fighter_1_id=fighter_1_id,
+            fighter_2_id=fighter_2_id,
+            date=match_date,          # if your column is db.Date
+            location=location,
+            weight_class_name=weight_class_name,
+            method=method,
+            round=round_,
+            time=time_,
+            event_name=event_name,
+            winner_id=winner_id
+        )
+
+        # 3. Insert into DB
+        db.session.add(new_match)
+        db.session.commit()
+
+        flash("New match created!")
+        return redirect(url_for("main.matches"))
+
+    else:
+        # GET: Show the form
+        # We might pass a list of fighters to choose from in the form
+        fighters = Fighter.query.all()
+        weight_classes = WeightClass.query.all()  # if you store them in DB
+        return render_template("matches.html", fighters=fighters, weight_classes=weight_classes)
+
+@main.route("/matches/<int:match_id>/edit", methods=["GET", "POST"])
+def edit_match(match_id):
+    match = Match.query.get_or_404(match_id)
+
+    if request.method == "POST":
+        match_date_str = request.form.get("date")
+        match.location = request.form.get("location", match.location)
+        match.weight_class_name = request.form.get("weight_class_name", match.weight_class_name)
+        match.method = request.form.get("method", match.method)
+        match.round = request.form.get("round", match.round, type=int)
+        match.time = request.form.get("time", match.time)
+        match.event_name = request.form.get("event_name", match.event_name)
+        match.winner_id = request.form.get("winner_id", match.winner_id, type=int)
+
+        # If user updates fighter_1/fighter_2
+        fighter_1_id = request.form.get("fighter_1_id", type=int)
+        if fighter_1_id:
+            match.fighter_1_id = fighter_1_id
+
+        fighter_2_id = request.form.get("fighter_2_id", type=int)
+        if fighter_2_id:
+            match.fighter_2_id = fighter_2_id
+
+        # parse date
+        if match_date_str:
+            from datetime import datetime
+            try:
+                match.date = datetime.strptime(match_date_str, "%Y-%m-%d").date()
+            except ValueError:
+                flash("Invalid date format. Use YYYY-MM-DD.")
+
+        db.session.commit()
+        flash("Match updated successfully!")
+        return redirect(url_for("main.matches"))
+
+    # GET: show an edit form for the match
+    fighters = Fighter.query.all()
+    weight_classes = WeightClass.query.all()
+    return render_template("match_edit.html", match=match, fighters=fighters, weight_classes=weight_classes)
+
+@main.route("/matches/<int:match_id>/delete", methods=["POST"])
+def delete_match(match_id):
+    match = Match.query.get_or_404(match_id)
+    db.session.delete(match)
+    db.session.commit()
+
+    flash(f"Match with ID {match_id} was deleted.")
+    return redirect(url_for("main.list_matches"))
+
+
+@main.route("/analytics")
+def analytics():
+    ...

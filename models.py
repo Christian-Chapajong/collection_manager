@@ -122,8 +122,8 @@ class Match(db.Model):
     winner_id = db.Column(db.Integer, db.ForeignKey('fighters.id'), nullable=True)
 
     # Single-sided relationships
-    fighter1 = db.relationship('Fighter', foreign_keys=[fighter_1_id])
-    fighter2 = db.relationship('Fighter', foreign_keys=[fighter_2_id])
+    fighter_1 = db.relationship('Fighter', foreign_keys=[fighter_1_id])
+    fighter_2 = db.relationship('Fighter', foreign_keys=[fighter_2_id])
     winner_rel = db.relationship('Fighter', foreign_keys=[winner_id])
     weight_class_rel = db.relationship('WeightClass')
 
