@@ -1,15 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <title>Update Match</title>
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-  />
-</head>
-<body class="bg-light">
-  <div class="container mt-5">
+
+<!-- templates/matches_edit.html -->
+{% extends "base.html" %}
+
+{% block title %}Edit Match{% endblock %}
+
+{% block content %}
     <!-- Display flash messages, if any -->
     {% with messages = get_flashed_messages() %}
       {% if messages %}
@@ -17,7 +12,7 @@
       {% endif %}
     {% endwith %}
 
-    <h1>Add a fighter</h2>
+    <h1>Add a fighter</h1>
     <form method="POST" action="{{ url_for('main.new_match') }}">
         <div>
         <label>Fighter 1:</label>
@@ -136,6 +131,4 @@
     
         <button type="submit">Update Match</button>
     </form>
-    </div>
-</body>
-</html>
+{% endblock %}

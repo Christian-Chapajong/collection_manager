@@ -74,8 +74,8 @@ class WeightClass(db.Model):
     __tablename__ = 'weight_classes'
 
     name = db.Column(db.String(50), primary_key=True)
-    min_weight = db.Column(db.Float, nullable=False)
-    max_weight = db.Column(db.Float, nullable=False)
+    min_weight = db.Column(db.Float, nullable=True)
+    max_weight = db.Column(db.Float, nullable=True)
 
     def __repr__(self):
         return f"<WeightClass(name='{self.name}', min_weight={self.min_weight}, max_weight={self.max_weight})>"

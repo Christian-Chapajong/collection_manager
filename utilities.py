@@ -9,23 +9,32 @@ def read_csv_file(file_path):
     df = pd.read_csv(file_path)  # Read CSV into a DataFrame
     return df.to_dict(orient='records')  # Convert DataFrame to a list of dictionaries
 
-def parse_date(date_str):
-    """Parses a string like '10/04/2016 00:00:00' into a Python date object."""
-    if not date_str or pd.isna(date_str):
+def parse_date(raw_value):
+    """
+    Safely parse date from raw_value, which might be float/NaN/etc.
+    Expecting format: DD/MM/YYYY.
+    """
+    # If raw_value is None or float, skip or return None
+    if not isinstance(raw_value, str):
         return None
+
+    raw_value = raw_value.strip()
+    if not raw_value:
+        return None  # empty string
+
     try:
-        # If it's DD/MM/YYYY HH:MM:SS
-        dt = datetime.strptime(date_str, "%d/%m/%Y %H:%M:%S")
-        # If your Match model uses a Date (no time), return the date portion:
-        return dt.date()
+        return datetime.strptime(raw_value, "%d/%m/%Y").date()
     except ValueError:
         return None
 
 def set_weightclass(weight):
     for class_name, limit in WEIGHTCLASSES:
+        # Skip weight classes that have no valid weight limit (None or NaN)
+        if limit is None or limit != limit:  # Checks if limit is NaN
+            continue
         if weight <= limit:
             return class_name
-    return "Super heavweight"
+    return "Super Heavyweight"
 
 def init_fighter_table():
     with current_app.app_context():
@@ -62,24 +71,39 @@ def init_fighter_table():
         db.session.commit()
 
 def init_weightclass_table():
-    # WeightClass.query.delete()  # Clear out the table
-
     for i in range(len(WEIGHTCLASSES)):
         if i == len(WEIGHTCLASSES) - 1:
             break
+        
+        # Check if the current weightclass has a valid min_weight and max_weight
+        min_weight = WEIGHTCLASSES[i][1]
+        next_weight = WEIGHTCLASSES[i+1][1]
+        
+        if min_weight is None:
+            min_weight = 0  # or any appropriate value for missing min weight
+        
+        if next_weight is None:
+            next_weight = float('inf')  # set max_weight to inf for missing next weight
+
         weightclass = WeightClass(
             name = WEIGHTCLASSES[i][0],
-            min_weight = WEIGHTCLASSES[i][1],
-            max_weight = WEIGHTCLASSES[i+1][1]
+            min_weight = min_weight,
+            max_weight = next_weight
         )
 
         db.session.add(weightclass)
 
     # Add the last weightclass
+    last_weightclass = WEIGHTCLASSES[-1]
+    min_weight = last_weightclass[1]
+    
+    if min_weight is None:
+        min_weight = 0  # or any appropriate value for missing min weight
+
     weightclass = WeightClass(
-        name = WEIGHTCLASSES[-1][0],
-        min_weight = WEIGHTCLASSES[-1][1],
-        max_weight = float('inf')
+        name = last_weightclass[0],
+        min_weight = min_weight,
+        max_weight = float('inf')  # Set max_weight to inf for the last weight class
     )
 
     db.session.commit()
@@ -112,7 +136,6 @@ def init_match_table():
         # Convert date string -> Python date
         date_value = parse_date(match_data.get('date', None))
 
-
         match = Match(
             location=match_data.get('location', None),
             fighter_1_id=match_data.get('fighter_1_id', None),
@@ -130,7 +153,7 @@ def init_match_table():
             fighter_2_sub=match_data.get('fighter_2_sub_att', 0),
 
             # Weight class by name (string)
-            weight_class_name=match_data.get('weight_class_name', 'Featherweight'),  # or any default
+            weight_class_name=match_data.get('weight_class', None),  # or any default
 
             # Method of victory, round, time, event_name, date
             method=match_data.get('method', 'Decision'),  # method is non-nullable, give a default
@@ -145,4 +168,3 @@ def init_match_table():
         db.session.add(match)
         
     db.session.commit()
-

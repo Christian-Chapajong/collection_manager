@@ -6,7 +6,12 @@ import utilities
 from models import Fighter, FighterSchema, WeightClass, Match
 from collections import OrderedDict
 from sqlalchemy import or_
+from datetime import datetime, date
+from sqlalchemy.orm import aliased
 
+# ===========================
+# ======== Fighters =========
+# ===========================
 @main.route("/fighters", methods=["GET"])
 def fighters():
     # 1. Grab the 'search' term from query params
@@ -120,6 +125,9 @@ def delete_fighter(fighter_id):
     flash(f"Fighter (ID: {fighter_id}) deleted!")
     return redirect(url_for("main.fighters"))
 
+# ===========================
+# ======== Matches ==========
+# ===========================
 @main.route("/matches", methods=["GET"])
 def matches():
     # 1. Grab query params for filtering or searching
@@ -135,13 +143,18 @@ def matches():
 
     # 3. Filter by fighter_name if provided
     # Match has fighter_1, fighter_2 relationships
+    Fighter1 = aliased(Fighter)  # distinct alias for fighter1
+    Fighter2 = aliased(Fighter)  # distinct alias for fighter2
+
+    # explicit join on the same table with different aliases
+    query = query.join(Fighter1, Match.fighter_1_id == Fighter1.id)
+    query = query.join(Fighter2, Match.fighter_2_id == Fighter2.id)
+
     if fighter_name:
-        # Join or filter by either fighter_1 or fighter_2 name
-        query = query.join(Match.fighter_1).join(Match.fighter_2)
         query = query.filter(
             or_(
-                Fighter.name.ilike(f"%{fighter_name}%"),
-                Fighter.name.ilike(f"%{fighter_name}%")
+                Fighter1.name.ilike(f"%{fighter_name}%"),
+                Fighter2.name.ilike(f"%{fighter_name}%")
             )
         )
 
@@ -183,7 +196,6 @@ def new_match():
         winner_id = request.form.get("winner_id", type=int)  # or None if no winner
 
         # parse date
-        from datetime import datetime, date
         match_date = None
         if match_date_str:
             try:
@@ -212,14 +224,12 @@ def new_match():
 
         flash("New match created!")
         return redirect(url_for("main.matches"))
-
-    else:
-        # GET: Show the form
-        # We might pass a list of fighters to choose from in the form
-        fighters = Fighter.query.all()
-        weight_classes = WeightClass.query.all()  # if you store them in DB
-        return render_template("matches.html", fighters=fighters, weight_classes=weight_classes)
-
+    
+    # GET request: render the "matches_new.html” template
+    fighters=Fighter.query.all()
+    weight_classes=WeightClass.query.all()
+    return render_template("matches_new.html", fighters=fighters, weight_classes=weight_classes)
+    
 @main.route("/matches/<int:match_id>/edit", methods=["GET", "POST"])
 def edit_match(match_id):
     match = Match.query.get_or_404(match_id)
@@ -267,9 +277,11 @@ def delete_match(match_id):
     db.session.commit()
 
     flash(f"Match with ID {match_id} was deleted.")
-    return redirect(url_for("main.list_matches"))
+    return redirect(url_for("main.matches"))
 
-
+# ===========================
+# ======= Analytics =========
+# ===========================
 @main.route("/analytics")
 def analytics():
     ...
